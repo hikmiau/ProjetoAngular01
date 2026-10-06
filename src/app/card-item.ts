@@ -7,7 +7,8 @@ import { Item } from './pokemon.service';
   imports: [RouterLink],
   template: `
     <div class="relative w-full border bg-superficie p-3 transition-colors duration-500"
-      [class]="coletado() ? 'border-ouro' : 'border-white/10 hover:border-ouro/50'">
+      [class]="coletado() ? 'border-ouro' : 'border-white/10 hover:border-ouro/50'"
+      [class.animate-pulse]="!coletado() && inquieto()">
       <a [routerLink]="['/item', item().id]" class="block">
         <img [src]="item().imagem" [alt]="item().nome"
           class="w-full transition-all duration-700"
@@ -15,6 +16,9 @@ import { Item } from './pokemon.service';
         <p class="mt-2 text-sm capitalize" [class]="coletado() ? 'text-osso' : 'text-cinza'">
           {{ coletado() ? item().nome : '???' }}
         </p>
+        @if (vezes() > 0) {
+          <p class="mt-1 text-xs text-cinza">voltei {{ vezes() }} vezes</p>
+        }
       </a>
 
       <button type="button" (click)="escolher.emit(item().id)" class="mt-3 w-full border px-3 py-2 text-sm"
@@ -27,5 +31,7 @@ import { Item } from './pokemon.service';
 export class CardItem {
   item = input.required<Item>();
   coletado = input(false);
+  vezes = input(0);
+  inquieto = input(false);
   escolher = output<number>();
 }

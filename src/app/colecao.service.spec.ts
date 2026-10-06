@@ -16,4 +16,17 @@ describe('ColecaoService', () => {
     expect(service.notasDoItem(25)).toHaveLength(2);
     expect(service.notasDoItem(25).reduce((total, nota) => total + nota.vezes, 0)).toBe(5);
   });
+
+  it('deve expor a frase conforme o nível atual', () => {
+    expect(service.frase()).toBe('Só dar uma olhada.');
+
+    for (let id = 1; id <= 3; id++) service.coletar(id);
+    expect(service.frase()).toBe('Só mais um.');
+
+    for (let id = 4; id <= 8; id++) service.coletar(id);
+    expect(service.frase()).toBe('Você já devia ter parado.');
+
+    for (let id = 9; id <= 15; id++) service.coletar(id);
+    expect(service.frase()).toBe('Você não consegue soltar.');
+  });
 });

@@ -25,7 +25,12 @@ import { PokemonService } from './pokemon.service';
 
       <div class="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
         @for (item of coletados(); track item.id) {
-          <app-card-item [item]="item" [coletado]="true" (escolher)="soltar($event)" />
+          <app-card-item
+            [item]="item"
+            [coletado]="true"
+            [vezes]="vezesPorItem()[item.id] ?? 0"
+            [inquieto]="inquieto()"
+            (escolher)="soltar($event)" />
         } @empty {
           <p class="col-span-full text-cinza">Vazio. Você vai voltar.</p>
         }
@@ -36,6 +41,15 @@ import { PokemonService } from './pokemon.service';
 export class ColecaoPage {
   pokemon = inject(PokemonService);
   colecao = inject(ColecaoService);
+  inquieto = computed(() => this.colecao.intensidade() > 0.7);
+  vezesPorItem = computed(() => {
+    const mapa: Record<number, number> = {};
+    const notas = this.colecao.notas();
+    for (const [id, lista] of Object.entries(notas)) {
+      mapa[Number(id)] = lista.reduce((total, nota) => total + nota.vezes, 0);
+    }
+    return mapa;
+  });
   coletados = computed(() => this.pokemon.itens().filter(i => this.colecao.tem(i.id)));
 
   soltar(id: number) {

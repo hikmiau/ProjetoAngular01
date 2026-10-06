@@ -6,6 +6,8 @@ export interface Nota {
   criadaEm: number;
 }
 
+type Nivel = 'curiosidade' | 'hábito' | 'fixação' | 'possessão';
+
 @Injectable({ providedIn: 'root' })
 export class ColecaoService {
   readonly ids = signal<number[]>([]);
@@ -16,12 +18,24 @@ export class ColecaoService {
   readonly meta = computed(() => (Math.floor(this.total() / 5) + 1) * 5);
   // cresce sem nunca chegar a 1
   readonly intensidade = computed(() => 1 - 1 / (1 + this.total() / 10));
-  readonly nivel = computed(() => {
+  readonly nivel = computed<Nivel>(() => {
     const t = this.total();
     if (t < 3) return 'curiosidade';
     if (t < 8) return 'hábito';
     if (t < 15) return 'fixação';
     return 'possessão';
+  });
+  readonly frase = computed(() => {
+    switch (this.nivel()) {
+      case 'curiosidade':
+        return 'Só dar uma olhada.';
+      case 'hábito':
+        return 'Só mais um.';
+      case 'fixação':
+        return 'Você já devia ter parado.';
+      case 'possessão':
+        return 'Você não consegue soltar.';
+    }
   });
 
   tem(id: number) { return this.ids().includes(id); }

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CardItem } from './card-item';
 import { ColecaoService } from './colecao.service';
 import { PokemonService } from './pokemon.service';
@@ -13,7 +13,7 @@ import { PokemonService } from './pokemon.service';
         <span class="font-titulo text-3xl text-ouro" [class.animate-pulse]="colecao.intensidade() > 0.5">
           {{ colecao.total() }} / {{ colecao.meta() }}
         </span>
-        &nbsp;Só mais um.
+        &nbsp;{{ colecao.frase() }}
       </p>
 
       <div class="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -30,7 +30,12 @@ import { PokemonService } from './pokemon.service';
           </div>
         } @else {
           @for (item of pokemon.itens(); track item.id) {
-            <app-card-item [item]="item" [coletado]="colecao.tem(item.id)" (escolher)="colecao.coletar($event)" />
+            <app-card-item
+              [item]="item"
+              [coletado]="colecao.tem(item.id)"
+              [vezes]="vezesPorItem()[item.id] ?? 0"
+              [inquieto]="inquieto()"
+              (escolher)="colecao.coletar($event)" />
           } @empty {
             <p class="col-span-full text-cinza">Nada para coletar. Por enquanto.</p>
           }
@@ -42,5 +47,14 @@ import { PokemonService } from './pokemon.service';
 export class Explorar {
   pokemon = inject(PokemonService);
   colecao = inject(ColecaoService);
+  inquieto = computed(() => this.colecao.intensidade() > 0.7);
+  vezesPorItem = computed(() => {
+    const mapa: Record<number, number> = {};
+    const notas = this.colecao.notas();
+    for (const [id, lista] of Object.entries(notas)) {
+      mapa[Number(id)] = lista.reduce((total, nota) => total + nota.vezes, 0);
+    }
+    return mapa;
+  });
   esqueleto = Array.from({ length: 8 }, (_, i) => i);
 }
