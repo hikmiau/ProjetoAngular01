@@ -1,8 +1,15 @@
 import { Injectable, computed, signal } from '@angular/core';
 
+export interface Nota {
+  motivo: string;
+  vezes: number;
+  criadaEm: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ColecaoService {
   readonly ids = signal<number[]>([]);
+  readonly notas = signal<Record<number, Nota[]>>({});
 
   readonly total = computed(() => this.ids().length);
   // a meta sempre passa à frente: a coleção nunca fecha
@@ -20,4 +27,12 @@ export class ColecaoService {
   tem(id: number) { return this.ids().includes(id); }
   coletar(id: number) { if (!this.tem(id)) this.ids.update(l => [...l, id]); }
   soltar(id: number) { this.ids.update(l => l.filter(x => x !== id)); }
+  notasDoItem(id: number) { return this.notas()[id] ?? []; }
+  anotar(id: number, motivo: string, vezes: number) {
+    const novaNota: Nota = { motivo, vezes, criadaEm: Date.now() };
+    this.notas.update(notasAtuais => ({
+      ...notasAtuais,
+      [id]: [...(notasAtuais[id] ?? []), novaNota],
+    }));
+  }
 }
